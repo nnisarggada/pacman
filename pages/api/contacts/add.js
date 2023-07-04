@@ -1,15 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 
-const updateContacts = (req, res) => {
+const addContact = (req, res) => {
   const { name, phone, email } = req.body;
 
   // Create the VCF content
   const vcfContent = `BEGIN:VCARD
-FN:${name}
-TEL:${phone}
-EMAIL:${email}
-END:VCARD\n`;
+  FN:${name}
+  TEL:${phone}
+  EMAIL:${email}
+  END:VCARD\n`;
 
   // Set the file path
   const filePath = path.join(process.cwd(), 'public', 'vcf', 'contacts.vcf');
@@ -27,9 +27,9 @@ END:VCARD\n`;
     // Write the sorted contacts back to the file
     fs.writeFileSync(filePath, sortedContacts);
 
-    res.status(200).json({ message: 'Contact added and contacts sorted successfully.' });
+    res.status(200).json({ message: 'Contact Added!' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to add contact and sort contacts.' });
+    res.status(500).json({ error: 'Failed!' });
   }
 };
 
@@ -64,4 +64,4 @@ const sortContacts = (contacts) => {
   return sortedContacts;
 };
 
-export default updateContacts;
+export default addContact;
