@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { BiExport, BiSearch } from 'react-icons/bi';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaTrash } from 'react-icons/fa';
 
 const ContactList = () => {
   const [contacts, setContacts] = useState([]);
@@ -89,15 +89,41 @@ const ContactList = () => {
         email: editedEmail,
       };
 
+      if (!editedName || !editedPhone) {
+        alert('Please fill in all fields');
+      }
+      else {
+        try {
+          const response = await fetch('/api/contacts/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedContact),
+          });
+
+          if (response.ok) {
+            alert('Contact Updated!');
+            window.location.href = '/';
+          } else {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to update contacts.');
+          }
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+    };
+
+    const handleDelete = async () => {
+
       try {
-        const response = await fetch('/api/contacts/update', {
+        const response = await fetch('/api/contacts/delete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatedContact),
+          body: JSON.stringify({index: index}),
         });
 
         if (response.ok) {
-          alert('Contact Updated!');
+          alert('Contact Deleted!');
           window.location.href = '/';
         } else {
           const data = await response.json();
@@ -108,17 +134,21 @@ const ContactList = () => {
       }
     };
 
+
     return (
       <div className="w-full h-full max-w-xl bg-gray-100 bg-opacity-5 p-8 text-xl text-white rounded-md shadow-md flex flex-col">
-        <input
-          id="name"
-          className="text-3xl w-full bg-gray-100 bg-opacity-0 text-center truncate font-bold mb-32 focus:outline-none"
-          value={editedName}
-          onClick={handleNameClick}
-          onChange={handleNameChange}
-          onBlur={handleNameBlur}
-          readOnly={!isEditing}
-        />
+        <div className="flex">
+          <input
+            id="name"
+            className="text-3xl w-full bg-gray-100 bg-opacity-0 text-center truncate font-bold mb-32 focus:outline-none"
+            value={editedName}
+            onClick={handleNameClick}
+            onChange={handleNameChange}
+            onBlur={handleNameBlur}
+            readOnly={!isEditing}
+          />
+          <FaTrash onClick={handleDelete} className="text-3xl text-red-600" />
+        </div>
         <div className="mb-8">
           <p className="text-2xl font-semibold mb-2">Phone Number</p>
           <input
@@ -168,14 +198,14 @@ const ContactList = () => {
 
   if (showContact) {
     return (
-      <div className="absolute top-0 left-0 z-10 w-screen h-screen bg-black p-8">
+      <div className="absolute top-0 left-0 z-10 grid place-items-center w-screen h-[100dvh] bg-black p-8">
         <ContactCard contact={currentContact} index={currentContactIndex}/>
       </div>
     );
   }
   else {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-[100dvh]">
         <Head>
           <title>Nnisarg's Contacts</title>
         </Head>
