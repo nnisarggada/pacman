@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { BiExport, BiSearch } from 'react-icons/bi';
 import { FaPlus } from 'react-icons/fa';
