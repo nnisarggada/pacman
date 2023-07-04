@@ -34,8 +34,9 @@ const addContactCard = () => {
   };
 
   return (
-    <div className="absolute top-0 left-0 z-10 grid place-items-center w-screen h-[100svh] bg-black p-8">
+    <div className="absolute top-0 left-0 z-10 grid place-items-center w-screen h-[100dvh] bg-black p-8">
         <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
           <title>Add Contact | Nnisarg's Contacts</title>
         </Head>
       <div className="w-full h-full max-w-xl bg-gray-100 bg-opacity-5 p-8 text-xl text-white rounded-md shadow-md flex flex-col">

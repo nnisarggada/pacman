@@ -198,15 +198,16 @@ const ContactList = () => {
 
   if (showContact) {
     return (
-      <div className="absolute top-0 left-0 z-10 grid place-items-center w-screen h-[100svh] bg-black p-8">
+      <div className="absolute top-0 left-0 z-10 grid place-items-center w-screen h-[100dvh] bg-black p-8">
         <ContactCard contact={currentContact} index={currentContactIndex}/>
       </div>
     );
   }
   else {
     return (
-      <div className="flex flex-col min-h-[100svh]">
+      <div className="flex flex-col min-h-[100dvh]">
         <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
           <title>Nnisarg's Contacts</title>
         </Head>
         <nav className="bg-blue-600 p-4">
