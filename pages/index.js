@@ -175,6 +175,9 @@ const ContactList = () => {
   else {
     return (
       <div className="flex flex-col min-h-screen">
+        <Head>
+          <title>Nnisarg's Contacts</title>
+        </Head>
         <nav className="bg-blue-600 p-4">
           <div className="flex justify-between px-4 text-white text-4xl font-bold">
             <h1>My Contacts</h1>

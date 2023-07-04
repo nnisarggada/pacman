@@ -34,6 +34,9 @@ const addContactCard = () => {
 
   return (
     <div className="absolute top-0 left-0 z-10 w-screen h-screen bg-black p-8">
+        <Head>
+          <title>Add Contact | Nnisarg's Contacts</title>
+        </Head>
       <div className="w-full h-full max-w-xl bg-gray-100 bg-opacity-5 p-8 text-xl text-white rounded-md shadow-md flex flex-col">
         <input
           id="name"
