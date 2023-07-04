@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "Switching Branch"
+git checkout master
+
+echo "Building App"
+npm run build
+
+echo "Deploying App"
+scp -r .next/* root@nnisarg.in:/var/www/contacts/
+
+echo "Done!"
