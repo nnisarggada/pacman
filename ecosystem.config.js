@@ -14,7 +14,7 @@ module.exports = {
       path: "/root/phonebook",
       "pre-deploy-local": "",
       "post-deploy":
-        "npm install && pm2 reload ecosystem.config.js --env production",
+        "npm install && npm run build && pm2 reload ecosystem.config.js --env production",
       "pre-setup": "",
     },
   },
