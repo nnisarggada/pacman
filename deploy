@@ -1,4 +1,0 @@
-#!/bin/bash
-
-npm run build
-scp -r .next/* root@nnisarg.in:~/phonebook
