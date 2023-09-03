@@ -337,7 +337,7 @@ const ContactList = () => {
             <input
               type="password"
               className="p-2 bg-black border-b-blue-600 border-b-2 focus:outline-none text-white w-full max-w-xl"
-              placeholder="Enter Password"
+              placeholder="Enter Password - Deafult is 'Password'"
               onChange={(e) => setPass(e.target.value)}
               value={pass}
             />
