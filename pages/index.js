@@ -1,9 +1,9 @@
-/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { BiExport, BiSearch } from "react-icons/bi";
+import { BiExport, BiLogOut, BiSearch } from "react-icons/bi";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import secrets from "@/data/secrets";
 
 const ContactList = () => {
   const [contacts, setContacts] = useState([]);
@@ -11,6 +11,9 @@ const ContactList = () => {
   const [currentContact, setCurrentContact] = useState({});
   const [currentContactIndex, setCurrentContactIndex] = useState();
   const [showContact, setShowContact] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [pass, setPass] = useState("");
+  const SECRET_KEY = secrets.password;
 
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -21,11 +24,22 @@ const ContactList = () => {
   };
 
   useEffect(() => {
+    if (localStorage.getItem("isLoggedIn") === "true") {
+      setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+    }
     fetchContacts();
   }, []);
 
   const fetchContacts = async () => {
-    const response = await fetch("/vcf/contacts.vcf");
+    const response = await fetch("/api/fetch", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        secret: SECRET_KEY,
+      },
+    });
     const vcfData = await response.text();
     const parsedContacts = parseVCF(vcfData);
     setContacts(parsedContacts);
@@ -94,9 +108,9 @@ const ContactList = () => {
         alert("Please fill in all fields");
       } else {
         try {
-          const response = await fetch("/api/contacts/update", {
+          const response = await fetch("/api/update", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", secret: SECRET_KEY },
             body: JSON.stringify(updatedContact),
           });
 
@@ -115,9 +129,9 @@ const ContactList = () => {
 
     const handleDelete = async () => {
       try {
-        const response = await fetch("/api/contacts/delete", {
+        const response = await fetch("/api/delete", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", secret: SECRET_KEY },
           body: JSON.stringify({ index: index }),
         });
 
@@ -187,19 +201,56 @@ const ContactList = () => {
     );
   };
 
-  const handleDownload = () => {
-    const fileUrl = "/vcf/contacts.vcf";
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.setAttribute("download", "contacts.vcf");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async () => {
+    try {
+      const response = await fetch("/api/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", secret: SECRET_KEY },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch VCF file.");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "contacts.vcf");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    }
   };
 
-  if (showContact) {
+  const handleLogin = () => {
+    if (pass === secrets.password) {
+      localStorage.setItem("isLoggedIn", "true");
+      setLoggedIn(true);
+    } else {
+      alert("Wrong Password!");
+      setPass("");
+    }
+  };
+
+  const handleLogOut = () => {
+    localStorage.removeItem("isLoggedIn");
+    setLoggedIn(false);
+  };
+
+  if (showContact && loggedIn) {
     return (
       <div className="absolute top-0 left-0 z-10 grid place-items-center w-screen h-[100dvh] bg-black p-8">
+        <Head>
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+          />
+          <title>{currentContact.name} | 📞 PACMAN</title>
+        </Head>
         <ContactCard contact={currentContact} index={currentContactIndex} />
       </div>
     );
@@ -211,69 +262,100 @@ const ContactList = () => {
             name="viewport"
             content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
           />
-          <title>Nnisarg's Contacts</title>
+          <title>📞 PACMAN | {secrets.username}'s Contacts</title>
         </Head>
         <nav className="bg-blue-600 p-4">
           <div className="flex justify-between px-4 text-white text-4xl font-bold">
-            <h1>My Contacts</h1>
-            <button onClick={handleDownload} className="text-2xl">
-              <BiExport />
-            </button>
-          </div>
-        </nav>
-        <div className="container mx-auto px-4 py-8 flex-grow">
-          <div className="flex justify-center items-end gap-2 mb-8 mx-4">
-            <button
-              onClick={() => (window.location.href = "/add")}
-              className="fixed bottom-8 right-8 w-16 grid place-items-center aspect-square bg-blue-500 text-white text-2xl rounded-full p-3 drop-shadow-2xl"
-            >
-              <FaPlus />
-            </button>
-            <BiSearch className="text-3xl text-blue-600" />
-            <input
-              type="text"
-              className="p-2 bg-black border-b-blue-600 border-b-2 focus:outline-none text-white w-full max-w-xl"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-          </div>
-          <div className="grid grid-cols-1 gap-4 place-items-center">
-            {filteredContacts.map((contact, index) => (
-              <div
-                key={index}
-                className="w-full max-w-xl bg-gray-800 px-4 rounded-md shadow-md flex justify-between items-center"
-              >
-                <h2
-                  onClick={() =>
-                    (window.location.href = "tel:" + contact.phone)
-                  }
-                  className="text-lg font-bold truncate py-4 h-full w-full hover:cursor-pointer"
-                >
-                  {contact.name}
-                </h2>
-                <button
-                  onClick={() => {
-                    setCurrentContact(contact);
-                    setCurrentContactIndex(contact.id);
-                    setShowContact(true);
-                  }}
-                  className="text-xl text-white"
-                >
-                  <BsThreeDotsVertical />
+            <h1>PACMAN</h1>
+            {loggedIn ? (
+              <div className="flex gap-8">
+                <button onClick={handleDownload} className="text-2xl">
+                  <BiExport />
+                </button>
+                <button onClick={handleLogOut} className="text-2xl">
+                  <BiLogOut />
                 </button>
               </div>
-            ))}
+            ) : (
+              <></>
+            )}
           </div>
-        </div>
+        </nav>
+        {loggedIn ? (
+          <>
+            <div className="container mx-auto px-4 py-8 flex-grow">
+              <div className="flex justify-center items-end gap-2 mb-8 mx-4">
+                <button
+                  onClick={() => (window.location.href = "/add")}
+                  className="fixed bottom-8 right-8 w-16 grid place-items-center aspect-square bg-blue-500 text-white text-2xl rounded-full p-3 drop-shadow-2xl"
+                >
+                  <FaPlus />
+                </button>
+                <BiSearch className="text-3xl text-blue-600" />
+                <input
+                  type="text"
+                  className="p-2 bg-black border-b-blue-600 border-b-2 focus:outline-none text-white w-full max-w-xl"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 place-items-center">
+                {filteredContacts.map((contact, index) => (
+                  <div
+                    key={index}
+                    className="w-full max-w-xl bg-gray-800 px-4 rounded-md shadow-md flex justify-between items-center"
+                  >
+                    <h2
+                      onClick={() =>
+                        (window.location.href = "tel:" + contact.phone)
+                      }
+                      className="text-lg font-bold truncate py-4 h-full w-full hover:cursor-pointer"
+                    >
+                      {contact.name}
+                    </h2>
+                    <button
+                      onClick={() => {
+                        setCurrentContact(contact);
+                        setCurrentContactIndex(contact.id);
+                        setShowContact(true);
+                      }}
+                      className="text-xl text-white"
+                    >
+                      <BsThreeDotsVertical />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-grow flex flex-col gap-12 justify-center items-center p-8">
+            <h1 className="text-center text-4xl font-bold text-white">
+              Welcome {secrets.username}
+            </h1>
+            <input
+              type="password"
+              className="p-2 bg-black border-b-blue-600 border-b-2 focus:outline-none text-white w-full max-w-xl"
+              placeholder="Enter Password"
+              onChange={(e) => setPass(e.target.value)}
+              value={pass}
+            />
+            <button
+              onClick={handleLogin}
+              className="text-center text-white text-2xl bg-blue-500 px-4 py-2 rounded-md"
+            >
+              Login
+            </button>
+          </div>
+        )}
         <footer className="bg-gray-900 py-4">
           <div className="container mx-auto px-4 flex flex-col items-center">
             <p className="text-center text-white text-sm">
-              &copy; {new Date().getFullYear()}{" "}
+              With with ❤️ by{"  "}
               <a href="https://nnisarg.in" className="text-blue-400">
                 Nnisarg Gada
-              </a>{" "}
-              | All Rights Reserved
+              </a>
             </p>
           </div>
         </footer>
@@ -282,4 +364,3 @@ const ContactList = () => {
   }
 };
 export default ContactList;
-/* eslint-enable */

@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import Head from "next/head";
+import secrets from "@/data/secrets";
 
 const AddContactCard = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+
+  const SECRET_KEY = secrets.password;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,9 +15,9 @@ const AddContactCard = () => {
       alert("Please fill in all fields");
     } else {
       try {
-        const response = await fetch("/api/contacts/add", {
+        const response = await fetch("/api/add", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", secret: SECRET_KEY },
           body: JSON.stringify({ name, phone, email }),
         });
 
@@ -38,7 +41,7 @@ const AddContactCard = () => {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
         />
-        <title>Add Contact | Nnisarg&apos;s Contacts</title>
+        <title>Add Contact | 📞 PACMAN</title>
       </Head>
       <div className="w-full h-full max-w-xl bg-gray-100 bg-opacity-5 p-8 text-xl text-white rounded-md shadow-md flex flex-col">
         <input
