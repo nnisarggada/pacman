@@ -262,7 +262,7 @@ const ContactList = () => {
             name="viewport"
             content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
           />
-          <title>📞 PACMAN | {secrets.username}'s Contacts</title>
+          <title>📞 PACMAN | {secrets.username}&apos;s Contacts</title>
         </Head>
         <nav className="bg-blue-600 p-4">
           <div className="flex justify-between px-4 text-white text-4xl font-bold">
