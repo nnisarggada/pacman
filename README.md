@@ -2,7 +2,7 @@
 # PACMAN - Private Alternative for Contact Management And Networking
 
 
-**PACMAN** is a privacy-centric solution that empowers users to regain control over their contact data. Hosting it on platforms like Vercel for free, users can easily export contacts to VCF files and share a unique URL for hassle-free contact additions. Say goodbye to data privacy concerns and hello to seamless contact management.
+**PACMAN** is a privacy-centric solution that empowers users to regain control over their contact data. Hosting it on their own servers, there's no issue with privacy. Users can easily export contacts to VCF files and share a URL for hassle-free contact additions. Say goodbye to data privacy concerns and hello to seamless contact management.
 
 
 
