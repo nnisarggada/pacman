@@ -15,6 +15,7 @@ export default async function handler(req, res) {
 
   const filePath = path.join(process.cwd(), "data/contacts.vcf");
   const vcfData = fs.readFileSync(filePath, "utf-8");
-  res.setHeader("Content-Type", "text/plain");
+  res.setHeader("Content-Type", "text/vcard");
+  res.setHeader("Content-Disposition", 'attachment; filename="contacts.vcf"');
   res.status(200).send(vcfData);
 }
