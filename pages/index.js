@@ -192,7 +192,7 @@ const ContactList = () => {
           </button>
           <button
             onClick={handleUpdate}
-            className="bg-blue-600 p-2 px-4 rounded-md"
+            className="bg-amber-400 text-black p-2 px-4 rounded-md"
           >
             Update
           </button>
@@ -205,7 +205,11 @@ const ContactList = () => {
     try {
       const response = await fetch("/api/download", {
         method: "POST",
-        headers: { "Content-Type": "application/json", secret: SECRET_KEY },
+        headers: {
+          "Content-Type": "application/json",
+          secret: SECRET_KEY,
+          Accept: "text/vcard",
+        },
       });
       if (!response.ok) {
         throw new Error("Failed to fetch VCF file.");
@@ -264,8 +268,8 @@ const ContactList = () => {
           />
           <title>📞 PACMAN | {secrets.username}&apos;s Contacts</title>
         </Head>
-        <nav className="bg-blue-600 p-4">
-          <div className="flex justify-between px-4 text-white text-4xl font-bold">
+        <nav className="bg-amber-400 p-4">
+          <div className="flex justify-between px-4 text-black text-4xl font-black">
             <h1>PACMAN</h1>
             {loggedIn ? (
               <div className="flex gap-8">
@@ -287,14 +291,14 @@ const ContactList = () => {
               <div className="flex justify-center items-end gap-2 mb-8 mx-4">
                 <button
                   onClick={() => (window.location.href = "/add")}
-                  className="fixed bottom-8 right-8 w-16 grid place-items-center aspect-square bg-blue-500 text-white text-2xl rounded-full p-3 drop-shadow-2xl"
+                  className="fixed bottom-8 right-8 w-16 grid place-items-center aspect-square bg-amber-400 text-white text-2xl rounded-full p-3 drop-shadow-2xl"
                 >
                   <FaPlus />
                 </button>
-                <BiSearch className="text-3xl text-blue-600" />
+                <BiSearch className="text-3xl text-amber-400" />
                 <input
                   type="text"
-                  className="p-2 bg-black border-b-blue-600 border-b-2 focus:outline-none text-white w-full max-w-xl"
+                  className="p-2 bg-black border-b-amber-400 border-b-2 focus:outline-none text-white w-full max-w-xl"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={handleSearchChange}
@@ -304,7 +308,7 @@ const ContactList = () => {
                 {filteredContacts.map((contact, index) => (
                   <div
                     key={index}
-                    className="w-full max-w-xl bg-gray-800 px-4 rounded-md shadow-md flex justify-between items-center"
+                    className="w-full max-w-xl bg-neutral-900 px-4 rounded-md shadow-md flex justify-between items-center"
                   >
                     <h2
                       onClick={() =>
@@ -336,24 +340,24 @@ const ContactList = () => {
             </h1>
             <input
               type="password"
-              className="p-2 bg-black border-b-blue-600 border-b-2 focus:outline-none text-white w-full max-w-xl"
+              className="p-2 bg-black border-b-amber-400 border-b-2 focus:outline-none text-white w-full max-w-xl"
               placeholder="Enter Password - Default is 'Password'"
               onChange={(e) => setPass(e.target.value)}
               value={pass}
             />
             <button
               onClick={handleLogin}
-              className="text-center text-white text-2xl bg-blue-500 px-4 py-2 rounded-md"
+              className="text-center text-black font-semibold text-2xl bg-amber-400 px-4 py-2 rounded-md"
             >
               Login
             </button>
           </div>
         )}
-        <footer className="bg-gray-900 py-4">
+        <footer className="bg-neutral-900 py-4">
           <div className="container mx-auto px-4 flex flex-col items-center">
             <p className="text-center text-white text-sm">
               Made with ❤️ by{"  "}
-              <a href="https://nnisarg.in" className="text-blue-400">
+              <a href="https://nnisarg.in" className="text-amber-400">
                 Nnisarg Gada
               </a>
             </p>

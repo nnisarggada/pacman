@@ -77,7 +77,7 @@ const AddContactCard = () => {
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-blue-600 p-2 px-4 rounded-md"
+            className="bg-amber-400 text-black p-2 px-4 rounded-md"
           >
             Add
           </button>
