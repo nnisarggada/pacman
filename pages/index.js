@@ -343,6 +343,7 @@ const ContactList = () => {
               className="p-2 bg-black border-b-amber-400 border-b-2 focus:outline-none text-white w-full max-w-xl"
               placeholder="Enter Password - Default is 'Password'"
               onChange={(e) => setPass(e.target.value)}
+              onKeyDown={(e) => {if (e.key == "Enter" && e.target.value) handleLogin()}}
               value={pass}
             />
             <button
