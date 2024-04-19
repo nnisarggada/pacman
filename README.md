@@ -26,10 +26,10 @@ To run this project, you will need to change the following variables to your dat
 ## Screenshots
 
 ### Welcome Screen
-![Welcome Screen](https://dev.nnisarg.in/Pacman/welcome.png)
+![Welcome Screen](https://dev.nnisarg.in/pacman/welcome.png)
 ### Main Screen
-![Main Screen](https://dev.nnisarg.in/Pacman/index.png)
+![Main Screen](https://dev.nnisarg.in/pacman/index.png)
 ### Add Contact Screen
-![Add Contact Screen](https://dev.nnisarg.in/Pacman/add.png)
+![Add Contact Screen](https://dev.nnisarg.in/pacman/add.png)
 ### Edit Contact Screen
-![Edit Contact Screen](https://dev.nnisarg.in/Pacman/update.png)
+![Edit Contact Screen](https://dev.nnisarg.in/pacman/update.png)
