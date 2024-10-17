@@ -1,0 +1,33 @@
+# Binaries
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Go specific
+*.log
+*.test
+*.prof
+
+# Go dependency directories
+/vendor/
+/bin/
+/pkg/
+
+# Database files
+*.db
+
+# vCard files
+*.vcf
+
+# IDE/editor config files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
