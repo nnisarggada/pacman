@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
@@ -13,8 +16,9 @@ import (
 
 const (
 	port     = 8080
+	username = "username"
 	password = "password"
-	dbFile   = "contacts.db"
+	dbFile   = "database/contacts.db"
 	vcfFile  = "contacts.vcf"
 )
 
@@ -31,10 +35,41 @@ func (c Contact) String() string {
 }
 
 var db, err = gorm.Open(sqlite.Open(dbFile), &gorm.Config{})
+var contactTemplate *template.Template
+
+func basicAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth == "" {
+			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
+			http.Error(w, "Authorization required", http.StatusUnauthorized)
+			return
+		}
+
+		payload, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(auth, "Basic "))
+		if err != nil {
+			http.Error(w, "Invalid Authorization", http.StatusUnauthorized)
+			return
+		}
+		pair := strings.SplitN(string(payload), ":", 2)
+
+		if len(pair) != 2 || pair[0] != username || pair[1] != password {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	}
+}
 
 func main() {
 	db.AutoMigrate(&Contact{})
-	http.HandleFunc("/export", handleExport)
+
+	contactTemplate = template.Must(template.ParseFiles("templates/fragments/contact-li.html"))
+
+	http.HandleFunc("/", basicAuth(indexHandler))
+	http.HandleFunc("/list-contacts", basicAuth(listContactsHandler))
+	http.HandleFunc("/export", basicAuth(exportHandler))
 
 	fmt.Printf("Starting server on port %d\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
@@ -116,7 +151,39 @@ func generateVCard(contact Contact) string {
 	return vCard
 }
 
-func handleExport(w http.ResponseWriter, r *http.Request) {
+func deleteContact(id string) error {
+	if err := db.Where("uuid = ?", id).Delete(&Contact{}).Error; err != nil {
+		return fmt.Errorf("Failed to delete contact: %v", err)
+	}
+	return nil
+}
+
+func updateContact(id string, name string, phone string, email string) error {
+	if name == "" {
+		return fmt.Errorf("Name cannot be empty")
+	}
+
+	if phone == "" {
+		return fmt.Errorf("Phone cannot be empty")
+	}
+
+	phoneRegex := regexp.MustCompile(`^\+[1-9]\d{1,14}$`)
+	if !phoneRegex.MatchString(phone) {
+		return fmt.Errorf("Invalid phone number format")
+	}
+
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	if email != "" && !emailRegex.MatchString(email) {
+		return fmt.Errorf("Invalid email address")
+	}
+
+	if err := db.Model(&Contact{}).Where("uuid = ?", id).Updates(Contact{Name: name, Phone: phone, Email: email}).Error; err != nil {
+		return fmt.Errorf("Failed to update contact: %v", err)
+	}
+	return nil
+}
+
+func exportHandler(w http.ResponseWriter, r *http.Request) {
 	err := exportContacts()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -136,4 +203,28 @@ func handleExport(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/vcard")
 
 	http.ServeFile(w, r, vcfFile)
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		http.Error(w, "Failed to load page", http.StatusInternalServerError)
+		return
+	}
+	tmpl.Execute(w, nil)
+}
+
+func listContactsHandler(w http.ResponseWriter, r *http.Request) {
+	contacts, err := getAllContacts()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to load contacts: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	for _, contact := range contacts {
+		if err := contactTemplate.Execute(w, contact); err != nil {
+			http.Error(w, fmt.Sprintf("Failed to render contact: %v", err), http.StatusInternalServerError)
+			return
+		}
+	}
 }
