@@ -108,9 +108,10 @@ func addContact(name string, phone string, email string) (Contact, error) {
 
 func getAllContacts() ([]Contact, error) {
 	var contacts []Contact
-	if err := db.Find(&contacts).Error; err != nil {
+	if err := db.Order("name ASC").Find(&contacts).Error; err != nil {
 		return nil, fmt.Errorf("Failed to get contacts: %v", err)
 	}
+
 	return contacts, nil
 }
 
