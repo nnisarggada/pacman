@@ -64,13 +64,6 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 func main() {
 	db.AutoMigrate(&Contact{})
 
-	newContact, err := addContact("John Doe", "+123456789", "johndoe@me.com")
-	if err != nil {
-		fmt.Printf("Failed to add contact: %v\n", err)
-	} else {
-		fmt.Printf("Added contact: %v\n", newContact)
-	}
-
 	http.HandleFunc("/", basicAuth(indexHandler))
 	http.HandleFunc("/add", basicAuth(addHandler))
 	http.HandleFunc("/edit", basicAuth(editHandler))
