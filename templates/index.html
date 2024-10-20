@@ -28,8 +28,8 @@
     </script>
   </head>
 
-  <body class="w-screen bg-neutral-900 text-white font-poppins">
-    <nav class="fixed inset-0 w-full h-20 bg-yellow-500 text-black">
+  <body class="bg-neutral-900 text-white font-poppins">
+    <nav class="fixed inset-0 w-screen h-20 bg-yellow-500 text-black">
       <div
         class="w-full h-full flex justify-between items-center mx-auto max-w-4xl p-4"
       >
@@ -51,13 +51,19 @@
       <ul class="w-full flex flex-col items-center gap-2">
         {{range .}}
         <li
-          class="contact-li w-full h-20 p-4 bg-neutral-950 flex items-center justify-between gap-4 text-xl rounded"
+          class="w-full h-20 bg-neutral-950 flex items-center justify-between gap-4 text-xl rounded p-4"
         >
-          <p class="contact-li-name truncate">{{.Name}}</p>
-          <p class="contact-li-phone invisible">{{.Phone}}</p>
-          <p class="contact-li-email invisible">{{.Email}}</p>
-          <a href="/edit?id={{.UUID}}" title="Edit {{.Name}}">
-            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+          <a
+            href="tel:{{.Phone}}"
+            title="{{.Name}}"
+            class="contact-li w-[90%] h-full flex items-center justify-between gap-4"
+          >
+            <p class="contact-li-name truncate">{{.Name}}</p>
+            <p class="contact-li-phone hidden">{{.Phone}}</p>
+            <p class="contact-li-email hidden">{{.Email}}</p>
+            <a href="/edit?id={{.UUID}}" title="Edit {{.Name}}">
+              <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+            </a>
           </a>
         </li>
         {{end}}
