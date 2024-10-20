@@ -53,6 +53,7 @@
         >
           <p class="contact-li-name truncate">{{.Name}}</p>
           <p class="contact-li-phone invisible">{{.Phone}}</p>
+          <p class="contact-li-email invisible">{{.Email}}</p>
           <a href="/edit?id={{.UUID}}" title="Edit {{.Name}}">
             <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
           </a>
@@ -98,8 +99,15 @@
           const phone = li
             .querySelector(".contact-li-phone")
             .innerText.toLowerCase();
+          const email = li
+            .querySelector(".contact-li-email")
+            .innerText.toLowerCase();
 
-          if (name.includes(query) || phone.includes(query)) {
+          if (
+            name.includes(query) ||
+            phone.includes(query) ||
+            email.includes(query)
+          ) {
             li.style.display = "flex";
           }
         });
