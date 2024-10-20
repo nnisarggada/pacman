@@ -51,12 +51,12 @@
       <ul class="w-full flex flex-col items-center gap-2">
         {{range .}}
         <li
-          class="w-full h-20 bg-neutral-950 flex items-center justify-between gap-4 text-xl rounded p-4"
+          class="contact-li w-full h-20 bg-neutral-950 flex items-center justify-between gap-4 text-xl rounded p-4"
         >
           <a
             href="tel:{{.Phone}}"
             title="{{.Name}}"
-            class="contact-li w-[90%] h-full flex items-center justify-between gap-4"
+            class="w-[90%] h-full flex items-center justify-between gap-4"
           >
             <p class="contact-li-name truncate">{{.Name}}</p>
             <p class="contact-li-phone hidden">{{.Phone}}</p>
