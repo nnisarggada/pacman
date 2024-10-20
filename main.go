@@ -83,7 +83,7 @@ func addContact(name string, phone string, email string) (Contact, error) {
 		return Contact{}, fmt.Errorf("Phone cannot be empty")
 	}
 
-	phoneRegex := regexp.MustCompile(`^\+[1-9]\d{1,14}$`)
+	phoneRegex := regexp.MustCompile(`^\+?[0-9]{7,15}$`)
 	if !phoneRegex.MatchString(phone) {
 		return Contact{}, fmt.Errorf("Invalid phone number format")
 	}
@@ -166,7 +166,7 @@ func updateContact(id string, name string, phone string, email string) error {
 		return fmt.Errorf("Phone cannot be empty")
 	}
 
-	phoneRegex := regexp.MustCompile(`^\+[1-9]\d{1,14}$`)
+	phoneRegex := regexp.MustCompile(`^\+?[0-9]{7,15}$`)
 	if !phoneRegex.MatchString(phone) {
 		return fmt.Errorf("Invalid phone number format")
 	}

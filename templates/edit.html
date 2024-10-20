@@ -92,9 +92,7 @@
       const form = document.querySelector("#edit-form");
       form.addEventListener("submit", (event) => {
         event.preventDefault();
-        const name = form.elements["name"].value;
-        const phone = form.elements["phone"].value;
-        const email = form.elements["email"].value;
+        const formData = new FormData(form);
         fetch("/edit?id={{.UUID}}", {
           method: "PATCH",
           body: formData,
