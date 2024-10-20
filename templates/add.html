@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    Add Contact - PACMAN | Private Alternative for Contact Management And Networking
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/0b92670209.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ["Poppins"],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="bg-neutral-900 font-poppins text-white">
+  <main class="w-full min-h-screen py-24 p-4 flex flex-1">
+    <form action="/add" method="post"
+      class="w-full max-w-xl mx-auto min-h-[100vh-12rem] flex flex-col gap-4 items-center justify-center text-2xl">
+      <input type="text" name="name" placeholder="John Doe"
+        class="w-full h-10 p-2 border-b-4 border-yellow-500 text-3xl text-center rounded bg-transparent" required />
+      <div class="w-full h-full flex flex-col gap-4 items-center justify-center">
+        <div class="flex flex-col gap-2">
+          <label for="phone" class="w-full text-left">
+            Phone
+          </label>
+          <input type="text" name="phone" placeholder="+91 1234567890"
+            class="w-full h-14 p-2 border-none rounded bg-neutral-700" required />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="email" class="w-full text-left">
+            Email
+          </label>
+          <input type="email" name="email" placeholder="email@example.com"
+            class="w-full h-14 p-2 border-none rounded bg-neutral-700" />
+        </div>
+      </div>
+      <button type="submit" class="w-fit h-16 py-2 px-4 border-none rounded bg-yellow-500">
+        Add Contact
+      </button>
+  </main>
+</body>
+
+</html>

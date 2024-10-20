@@ -6,7 +6,6 @@
     <title>
       PACMAN | Private Alternative for Contact Management And Networking
     </title>
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
       src="https://kit.fontawesome.com/0b92670209.js"
@@ -29,8 +28,8 @@
     </script>
   </head>
 
-  <body class="bg-neutral-900 font-poppins">
-    <nav class="fixed inset-0 w-full h-20 bg-yellow-500">
+  <body class="bg-neutral-900 text-white font-poppins">
+    <nav class="fixed inset-0 w-full h-20 bg-yellow-500 text-black">
       <div
         class="w-full h-full flex justify-between items-center mx-auto max-w-4xl p-4"
       >
@@ -44,20 +43,33 @@
     <main class="w-full min-h-screen pt-24 p-4 flex flex-col gap-4">
       <input
         id="search"
-        class="w-full h-10 p-2 border-none rounded bg-neutral-700 text-white"
+        class="w-full h-10 p-2 border-none rounded bg-neutral-700"
         placeholder="Search..."
       />
-      <ul
-        hx-get="/list-contacts"
-        hx-trigger="load"
-        hx-swap="innerHTML"
-        class="w-full flex flex-col items-center gap-2"
-      ></ul>
+      <ul class="w-full flex flex-col items-center gap-2">
+        {{range .}}
+        <li
+          class="contact-li w-full h-20 p-4 bg-neutral-950 flex items-center justify-between gap-4 text-xl rounded"
+        >
+          <p class="contact-li-name truncate">{{.Name}}</p>
+          <p class="contact-li-phone invisible">{{.Phone}}</p>
+          <a href="/edit?id={{.UUID}}" title="Edit {{.Name}}">
+            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+          </a>
+        </li>
+        {{end}}
+      </ul>
+
+      <a
+        href="/add"
+        title="Add Contact"
+        class="fixed bottom-6 right-6 size-16 p-2 text-3xl font-black rounded-full bg-yellow-500 grid place-items-center"
+      >
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+      </a>
     </main>
 
-    <footer
-      class="w-full h-14 bg-neutral-950 text-white grid place-items-center"
-    >
+    <footer class="w-full h-14 bg-neutral-950 grid place-items-center">
       <p>
         Made with <span class="text-rose-500">❤️</span> by
         <a
@@ -72,24 +84,24 @@
 
     <script>
       const searchInput = document.getElementById("search");
+      const contactLis = document.querySelectorAll(".contact-li");
 
-      document.body.addEventListener("htmx:afterOnLoad", () => {
-        const contactLis = document.querySelectorAll(".contact-li");
+      searchInput.addEventListener("input", (e) => {
+        const query = e.target.value.toLowerCase();
 
-        searchInput.addEventListener("input", (e) => {
-          const query = e.target.value.toLowerCase();
+        contactLis.forEach((li) => {
+          li.style.display = "none";
 
-          contactLis.forEach((li) => {
-            const name = li
-              .querySelector(".contact-li-name")
-              .innerText.toLowerCase();
+          const name = li
+            .querySelector(".contact-li-name")
+            .innerText.toLowerCase();
+          const phone = li
+            .querySelector(".contact-li-phone")
+            .innerText.toLowerCase();
 
-            if (name.includes(query)) {
-              li.style.display = "flex";
-            } else {
-              li.style.display = "none";
-            }
-          });
+          if (name.includes(query) || phone.includes(query)) {
+            li.style.display = "flex";
+          }
         });
       });
     </script>

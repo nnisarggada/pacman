@@ -35,7 +35,6 @@ func (c Contact) String() string {
 }
 
 var db, err = gorm.Open(sqlite.Open(dbFile), &gorm.Config{})
-var contactTemplate *template.Template
 
 func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -65,10 +64,16 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 func main() {
 	db.AutoMigrate(&Contact{})
 
-	contactTemplate = template.Must(template.ParseFiles("templates/fragments/contact-li.html"))
+	newContact, err := addContact("John Doe", "+123456789", "johndoe@me.com")
+	if err != nil {
+		fmt.Printf("Failed to add contact: %v\n", err)
+	} else {
+		fmt.Printf("Added contact: %v\n", newContact)
+	}
 
 	http.HandleFunc("/", basicAuth(indexHandler))
-	http.HandleFunc("/list-contacts", basicAuth(listContactsHandler))
+	http.HandleFunc("/add", basicAuth(addHandler))
+	http.HandleFunc("/edit", basicAuth(editHandler))
 	http.HandleFunc("/export", basicAuth(exportHandler))
 
 	fmt.Printf("Starting server on port %d\n", port)
@@ -183,6 +188,14 @@ func updateContact(id string, name string, phone string, email string) error {
 	return nil
 }
 
+func getContact(id string) (Contact, error) {
+	var contact Contact
+	if err := db.Where("uuid = ?", id).First(&contact).Error; err != nil {
+		return Contact{}, fmt.Errorf("Failed to get contact: %v", err)
+	}
+	return contact, nil
+}
+
 func exportHandler(w http.ResponseWriter, r *http.Request) {
 	err := exportContacts()
 	if err != nil {
@@ -206,25 +219,98 @@ func exportHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+
+	contacts, err := getAllContacts()
+	if err != nil {
+		http.Error(w, "Failed to load contacts", http.StatusInternalServerError)
+		return
+	}
+
 	tmpl, err := template.ParseFiles("templates/index.html")
+
 	if err != nil {
 		http.Error(w, "Failed to load page", http.StatusInternalServerError)
 		return
 	}
-	tmpl.Execute(w, nil)
+	tmpl.Execute(w, contacts)
 }
 
-func listContactsHandler(w http.ResponseWriter, r *http.Request) {
-	contacts, err := getAllContacts()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to load contacts: %v", err), http.StatusInternalServerError)
+func addHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == http.MethodGet {
+		tmpl, err := template.ParseFiles("templates/add.html")
+		if err != nil {
+			http.Error(w, "Failed to load page", http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, nil)
 		return
 	}
 
-	for _, contact := range contacts {
-		if err := contactTemplate.Execute(w, contact); err != nil {
-			http.Error(w, fmt.Sprintf("Failed to render contact: %v", err), http.StatusInternalServerError)
+	if r.Method == http.MethodPost {
+		name := r.FormValue("name")
+		phone := r.FormValue("phone")
+		email := r.FormValue("email")
+
+		phone = strings.ReplaceAll(phone, " ", "")
+
+		fmt.Printf("Name: %s, Phone: %s, Email: %s\n", name, phone, email)
+
+		_, err := addContact(name, phone, email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+}
+
+func editHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		contact, err := getContact(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tmpl, err := template.ParseFiles("templates/edit.html")
+		if err != nil {
+			http.Error(w, "Failed to load page", http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, contact)
+		return
+	}
+
+	if r.Method == http.MethodPatch {
+		name := r.FormValue("name")
+		phone := r.FormValue("phone")
+		email := r.FormValue("email")
+
+		phone = strings.ReplaceAll(phone, " ", "")
+
+		err := updateContact(id, name, phone, email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	if r.Method == http.MethodDelete {
+		err := deleteContact(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
 	}
 }
