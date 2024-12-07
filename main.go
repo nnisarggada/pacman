@@ -39,6 +39,7 @@ var db, err = gorm.Open(sqlite.Open(dbFile), &gorm.Config{})
 func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
+
 		if auth == "" {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Authorization required", http.StatusUnauthorized)
@@ -47,12 +48,14 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
 
 		payload, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(auth, "Basic "))
 		if err != nil {
+			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Invalid Authorization", http.StatusUnauthorized)
 			return
 		}
-		pair := strings.SplitN(string(payload), ":", 2)
 
+		pair := strings.SplitN(string(payload), ":", 2)
 		if len(pair) != 2 || pair[0] != username || pair[1] != password {
+			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
